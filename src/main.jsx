@@ -493,7 +493,7 @@ function App() {
           <div className="container hero-grid">
             <div className="hero-copy reveal">
               <p className="eyebrow">Fresh Computer Science Graduate</p>
-              <h1>Hi, I&apos;m <span className="gradient-text">Sufyan Akmal.</span></h1>
+              <h1>Hello, I&apos;m <span className="gradient-text">Sufyan Akmal.</span></h1>
               <h2>I <span className="gradient-text">build, support, and improve</span> digital solutions.</h2>
               <div className="role-rotator" aria-label="Career interests">
                 <span>IT Support</span>
