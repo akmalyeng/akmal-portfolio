@@ -1,5 +1,32 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
+import {
+  BadgeCheck,
+  BriefcaseBusiness,
+  Bug,
+  ClipboardCheck,
+  ClipboardList,
+  Code2,
+  Cpu,
+  Database,
+  Download,
+  ExternalLink,
+  FileText,
+  GraduationCap,
+  Headphones,
+  Mail,
+  MapPin,
+  Medal,
+  MessageCircle,
+  Mic,
+  Moon,
+  Server,
+  Smartphone,
+  Sparkles,
+  Sun,
+  Trophy,
+  Users,
+} from 'lucide-react';
 import './styles.css';
 
 const navItems = [
@@ -14,46 +41,52 @@ const navItems = [
 const careerFocus = [
   {
     title: 'IT Support / Technical Support',
-    icon: 'IT',
+    icon: Headphones,
     points: ['User support', 'Troubleshooting', 'Setup assistance', 'Documentation'],
   },
   {
     title: 'Software / Web / Mobile Development',
-    icon: '</>',
+    icon: Code2,
     points: ['Practical apps', 'Web interfaces', 'Mobile UI', 'Databases'],
   },
   {
     title: 'QA Testing / Software Testing',
-    icon: 'QA',
+    icon: Bug,
     points: ['Test execution', 'Bug reporting', 'Issue tracking', 'Quality checks'],
   },
   {
     title: 'Operations / Administrative Support',
-    icon: 'OPS',
+    icon: ClipboardList,
     points: ['Task coordination', 'Reports', 'Records', 'Workflow support'],
   },
 ];
 
-const featuredHighlights = [
+const quickSnapshot = [
+  {
+    title: 'Fresh Computer Science Graduate',
+    description: 'Computer Science graduate specialising in Mobile Computing with project exposure in mobile applications, Firebase, databases, IoT, documentation, and user-focused digital solutions.',
+    tags: ['Mobile Computing', 'Project-Based Learning', 'Technical + Communication'],
+    icon: GraduationCap,
+  },
   {
     title: 'Android Certified Associate Developer',
     label: 'Certification',
-    icon: 'AC',
+    icon: BadgeCheck,
   },
   {
-    title: 'Diamond Medal - International Innovation Competition',
+    title: 'Diamond Medal Winner',
     label: 'Award',
-    icon: 'DM',
+    icon: Trophy,
   },
   {
-    title: 'Flutter + Firebase Project Exposure',
+    title: 'Flutter + Firebase Exposure',
     label: 'Project Stack',
-    icon: 'FF',
+    icon: Sparkles,
   },
   {
-    title: 'Open to Entry-Level Tech Roles',
+    title: 'Open to Entry-Level Roles',
     label: 'Career Ready',
-    icon: 'OT',
+    icon: BriefcaseBusiness,
   },
 ];
 
@@ -127,8 +160,8 @@ const skills = {
 const currentlyExploring = [
   'React + Vite',
   'Frontend UI Design',
-  'IT Support Workflows',
   'QA Testing Fundamentals',
+  'IT Support Workflows',
   'Firebase',
   'Mobile App Development',
 ];
@@ -337,16 +370,34 @@ function ChipList({ items, compact = false }) {
   );
 }
 
+function IconBubble({ icon: Icon, className = '' }) {
+  return (
+    <span className={className ? `icon-bubble ${className}` : 'icon-bubble'} aria-hidden="true">
+      <Icon size={18} strokeWidth={2.2} />
+    </span>
+  );
+}
+
+function getProjectIcon(project) {
+  if (project.filters.includes('Mobile')) return Smartphone;
+  if (project.filters.includes('IoT')) return Cpu;
+  if (project.filters.includes('Database')) return Database;
+  if (project.filters.includes('Web')) return Server;
+  return BriefcaseBusiness;
+}
+
 function ProjectCard({ project, secondary = false }) {
   const isSpotlight = project.title === 'Flutter Sales Dashboard Application';
+  const ProjectIcon = getProjectIcon(project);
 
   return (
     <article className={`${secondary ? 'card project-card secondary-project' : 'card project-card'} ${isSpotlight ? 'spotlight-project' : ''}`}>
       <div className="project-visual" aria-hidden="true">
+        <IconBubble icon={ProjectIcon} className="project-visual-icon" />
         <span>{project.filters[0]}</span>
       </div>
       <div className="project-topline">
-        <p className="project-category">{project.category}</p>
+        <p className="project-category"><ProjectIcon size={15} strokeWidth={2.4} />{project.category}</p>
         <div className="project-labels">
           <span>{project.type}</span>
           <span>Completed</span>
@@ -370,6 +421,7 @@ function App() {
   const [hasScrolled, setHasScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState(navItems[0][1]);
   const [navIndicator, setNavIndicator] = useState({ left: 0, width: 0, ready: false });
+  const [theme, setTheme] = useState(() => (localStorage.getItem('theme') === 'dark' ? 'dark' : 'light'));
 
   useEffect(() => {
     const handleScroll = () => {
@@ -396,6 +448,11 @@ function App() {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    localStorage.setItem('theme', theme);
+  }, [theme]);
 
   useEffect(() => {
     const sections = document.querySelectorAll('.reveal-section');
@@ -486,6 +543,14 @@ function App() {
             </a>
           ))}
         </nav>
+        <button
+          className="theme-toggle"
+          type="button"
+          aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          onClick={() => setTheme((current) => (current === 'dark' ? 'light' : 'dark'))}
+        >
+          {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+        </button>
       </header>
 
       <main id="top">
@@ -503,14 +568,8 @@ function App() {
               </div>
               <p className="hero-subtitle">A Computer Science graduate blending technical skills, communication confidence, documentation, and real project exposure.</p>
               <div className="button-row">
-                <a className="button primary" href="/resume/technical-resume-sufyan-akmal.pdf" download aria-label="Download Sufyan Akmal technical resume">Download Resume</a>
+                <a className="button primary" href="/resume/technical-resume-sufyan-akmal.pdf" target="_blank" rel="noreferrer" aria-label="View Sufyan Akmal technical resume">View Resume</a>
                 <a className="button secondary" href="#projects">View Projects</a>
-                <a className="button ghost" href="#contact">Contact Me</a>
-              </div>
-              <div className="hero-highlights" aria-label="Quick highlights">
-                <span>Computer Science Graduate</span>
-                <span>Mobile Computing</span>
-                <span>Open to Entry-Level Roles</span>
               </div>
             </div>
             <aside className="profile-panel reveal" aria-label="Portfolio summary">
@@ -535,17 +594,31 @@ function App() {
           </div>
         </section>
 
-        <section className="container highlights-section reveal-section" aria-label="Featured highlights">
-          <div className="highlight-grid">
-            {featuredHighlights.map((item) => (
-              <article className="card highlight-card" key={item.title}>
-                <span className="highlight-icon" aria-hidden="true">{item.icon}</span>
-                <div>
-                  <span>{item.label}</span>
-                  <h3>{item.title}</h3>
-                </div>
-              </article>
-            ))}
+        <section className="container highlights-section reveal-section" aria-label="Quick snapshot">
+          <div className="section-header compact-header">
+            <p className="eyebrow">Quick Snapshot</p>
+            <h2>Recruiter-friendly highlights at a glance</h2>
+          </div>
+          <div className="snapshot-bento">
+            <article className="card snapshot-featured">
+              <IconBubble icon={quickSnapshot[0].icon} className="highlight-icon" />
+              <div>
+                <h3>{quickSnapshot[0].title}</h3>
+                <p>{quickSnapshot[0].description}</p>
+                <ChipList items={quickSnapshot[0].tags} compact />
+              </div>
+            </article>
+            <div className="snapshot-mini-grid">
+              {quickSnapshot.slice(1).map((item) => (
+                <article className="card highlight-card" key={item.title}>
+                  <IconBubble icon={item.icon} className="highlight-icon" />
+                  <div>
+                    <span>{item.label}</span>
+                    <h3>{item.title}</h3>
+                  </div>
+                </article>
+              ))}
+            </div>
           </div>
         </section>
 
@@ -575,7 +648,7 @@ function App() {
             <div className="card-grid four">
               {careerFocus.map((item) => (
                 <article className="card focus-card" key={item.title}>
-                  <span className="icon-mark" aria-hidden="true">{item.icon}</span>
+                  <IconBubble icon={item.icon} className="icon-mark" />
                   <h3>{item.title}</h3>
                   <ChipList items={item.points} compact />
                 </article>
@@ -604,7 +677,10 @@ function App() {
             <div className="skills-layout">
               {Object.entries(skills).map(([group, items]) => (
                 <article className="card skill-card" key={group}>
-                  <h3><span className="skill-icon" aria-hidden="true">{group === 'Technical Skills' ? 'TS' : group === 'Tools & Platforms' ? 'TP' : 'WS'}</span>{group}</h3>
+                  <h3>
+                    <IconBubble icon={group === 'Technical Skills' ? Code2 : group === 'Tools & Platforms' ? Server : Users} className="skill-icon" />
+                    {group}
+                  </h3>
                   <ChipList items={items} />
                 </article>
               ))}
@@ -660,7 +736,10 @@ function App() {
                 <article className="card timeline-card" key={item.role}>
                   <div>
                     <p className="project-category">{item.eyebrow}</p>
-                    <h3><span className="experience-icon" aria-hidden="true">{item.role.startsWith('IT') ? 'IT' : item.role === 'Promoter' ? 'CS' : 'TM'}</span>{item.role}</h3>
+                    <h3>
+                      <IconBubble icon={item.role.startsWith('IT') ? Headphones : item.role === 'Promoter' ? Users : ClipboardCheck} className="experience-icon" />
+                      {item.role}
+                    </h3>
                     <p>{item.description}</p>
                   </div>
                   <ul>
@@ -679,7 +758,7 @@ function App() {
               <article className={item.featured ? 'card education-card featured-education' : 'card education-card'} key={item.title}>
                 <span className="education-years">{item.years}</span>
                 <div>
-                  <h3>{item.title}</h3>
+                  <h3><GraduationCap size={18} strokeWidth={2.4} />{item.title}</h3>
                   <p className="project-category">{item.institution}</p>
                   <p>{item.description}</p>
                 </div>
@@ -699,7 +778,10 @@ function App() {
           <div className="achievement-groups">
             {achievementGroups.map((group) => (
               <article className="card achievement-group" key={group.group}>
-                <h3>{group.group}</h3>
+                <h3>
+                  <IconBubble icon={group.group === 'Certifications' ? BadgeCheck : group.group === 'Awards & Recognition' ? Medal : Mic} className="group-icon" />
+                  {group.group}
+                </h3>
                 <div className="achievement-items">
                   {group.items.map((item) => (
                     <div className="achievement-item" key={item.title}>
@@ -722,19 +804,19 @@ function App() {
             </div>
             <div className="resume-options">
               <div className="resume-option">
-                <strong>Technical Resume</strong>
+                <strong><FileText size={18} strokeWidth={2.4} />Technical Resume</strong>
                 <span>Best for IT Support, Technical Support, Software, Web, Mobile, and QA roles.</span>
                 <div className="resume-actions">
-                  <a className="button secondary" href="/resume/technical-resume-sufyan-akmal.pdf" target="_blank" rel="noreferrer" aria-label="View Sufyan Akmal technical resume PDF">View Resume</a>
-                  <a className="button primary" href="/resume/technical-resume-sufyan-akmal.pdf" download aria-label="Download Sufyan Akmal technical resume PDF">Download</a>
+                  <a className="button secondary" href="/resume/technical-resume-sufyan-akmal.pdf" target="_blank" rel="noreferrer" aria-label="View Sufyan Akmal technical resume PDF"><ExternalLink size={16} />View Resume</a>
+                  <a className="button primary" href="/resume/technical-resume-sufyan-akmal.pdf" download aria-label="Download Sufyan Akmal technical resume PDF"><Download size={16} />Download</a>
                 </div>
               </div>
               <div className="resume-option">
-                <strong>General Resume</strong>
+                <strong><FileText size={18} strokeWidth={2.4} />General Resume</strong>
                 <span>Best for operations support, administrative support, graduate, and Protege roles.</span>
                 <div className="resume-actions">
-                  <a className="button secondary" href="/resume/general-resume-sufyan-akmal.pdf" target="_blank" rel="noreferrer" aria-label="View Sufyan Akmal general resume PDF">View Resume</a>
-                  <a className="button outline" href="/resume/general-resume-sufyan-akmal.pdf" download aria-label="Download Sufyan Akmal general resume PDF">Download</a>
+                  <a className="button secondary" href="/resume/general-resume-sufyan-akmal.pdf" target="_blank" rel="noreferrer" aria-label="View Sufyan Akmal general resume PDF"><ExternalLink size={16} />View Resume</a>
+                  <a className="button outline" href="/resume/general-resume-sufyan-akmal.pdf" download aria-label="Download Sufyan Akmal general resume PDF"><Download size={16} />Download</a>
                 </div>
               </div>
             </div>
@@ -743,56 +825,36 @@ function App() {
 
         <section id="contact" className="contact-cta">
           <div className="container contact-panel reveal-section">
-            <div>
+            <div className="contact-copy">
               <p className="eyebrow">Contact</p>
-              <h2>Let&apos;s connect about entry-level opportunities.</h2>
-              <p>I am currently open to entry-level opportunities, graduate programmes, Protege roles, technical support roles, software-related roles, QA testing, and operations support positions.</p>
+              <h2>Let&apos;s connect about entry-level tech opportunities.</h2>
+              <p>I&apos;m open to graduate, Protege, IT support, QA, software-related, and operations support opportunities.</p>
               <div className="availability-highlight">
                 <span>Availability</span>
-                <strong>Open to entry-level roles, graduate programmes, Protege roles, and junior opportunities in Kuala Lumpur, Selangor, or remote/hybrid arrangements.</strong>
+                <strong>Available for roles in Kuala Lumpur, Selangor, remote, or hybrid arrangements.</strong>
               </div>
-              <p className="closing-line">Feel free to reach out if my background matches your hiring needs or if you would like to discuss a suitable opportunity.</p>
-              <div className="button-row">
-                <a className="button primary" href="mailto:sfynkml@gmail.com" aria-label="Email Sufyan Akmal">Email Me</a>
-                <a className="button secondary" href="/resume/technical-resume-sufyan-akmal.pdf" download aria-label="Download Sufyan Akmal technical resume">Download Resume</a>
+              <div className="contact-action-row" aria-label="Contact actions">
+                <a className="contact-action-button" href="mailto:sfynkml@gmail.com" aria-label="Email" title="Email">
+                  <Mail size={22} strokeWidth={2.3} />
+                </a>
+                <a className="contact-action-button" href="https://wa.me/601133587244" target="_blank" rel="noreferrer" aria-label="WhatsApp" title="WhatsApp">
+                  <MessageCircle size={22} strokeWidth={2.3} />
+                </a>
+                <a className="contact-action-button brand-mark" href="https://www.linkedin.com/in/sufyan-akmal-dron/" target="_blank" rel="noreferrer" aria-label="LinkedIn" title="LinkedIn">
+                  in
+                </a>
+                <a className="contact-action-button brand-mark" href="https://github.com/akmalyeng" target="_blank" rel="noreferrer" aria-label="GitHub" title="GitHub">
+                  gh
+                </a>
               </div>
             </div>
-            <div className="contact-grid">
-              <a className="card contact-card" href="mailto:sfynkml@gmail.com">
-                <span className="contact-icon" aria-hidden="true">@</span>
-                <div className="contact-meta">
-                  <span>Email</span>
-                  <strong>sfynkml@gmail.com</strong>
-                </div>
-              </a>
-              <a className="card contact-card" href="tel:+601133587244">
-                <span className="contact-icon" aria-hidden="true">tel</span>
-                <div className="contact-meta">
-                  <span>Phone</span>
-                  <strong>+601133587244</strong>
-                </div>
-              </a>
-              <div className="card contact-card">
-                <span className="contact-icon" aria-hidden="true">loc</span>
-                <div className="contact-meta">
-                  <span>Location</span>
-                  <strong>Malaysia / Kuala Lumpur & Selangor preferred</strong>
-                </div>
+            <div className="location-card" aria-label="Preferred location">
+              <IconBubble icon={MapPin} className="location-card-icon" />
+              <div>
+                <span>Preferred Location</span>
+                <h3>Kuala Lumpur & Selangor</h3>
+                <p>Remote / Hybrid Available</p>
               </div>
-              <a className="card contact-card" href="https://www.linkedin.com/in/sufyan-akmal-dron/" target="_blank" rel="noreferrer" aria-label="View Sufyan Akmal LinkedIn profile">
-                <span className="contact-icon" aria-hidden="true">in</span>
-                <div className="contact-meta">
-                  <span>LinkedIn</span>
-                  <strong>View LinkedIn</strong>
-                </div>
-              </a>
-              <a className="card contact-card" href="https://github.com/akmalyeng" target="_blank" rel="noreferrer" aria-label="View Sufyan Akmal GitHub profile">
-                <span className="contact-icon" aria-hidden="true">gh</span>
-                <div className="contact-meta">
-                  <span>GitHub</span>
-                  <strong>View GitHub</strong>
-                </div>
-              </a>
             </div>
           </div>
         </section>
