@@ -1,6 +1,7 @@
 node_modules/
 dist/
 .vercel/
+private/
 .env
 .env.local
 .env.*.local

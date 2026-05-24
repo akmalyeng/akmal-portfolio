@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
+import { FaGithub, FaLinkedin } from 'react-icons/fa';
 import {
   BadgeCheck,
   BriefcaseBusiness,
@@ -17,9 +18,9 @@ import {
   Mail,
   MapPin,
   Medal,
-  MessageCircle,
   Mic,
   Moon,
+  MonitorSmartphone,
   Server,
   Smartphone,
   Sparkles,
@@ -35,6 +36,7 @@ const navItems = [
   ['Skills', 'skills'],
   ['Projects', 'projects'],
   ['Experience', 'experience'],
+  ['Resume', 'resume'],
   ['Contact', 'contact'],
 ];
 
@@ -93,27 +95,27 @@ const quickSnapshot = [
 const reasons = [
   {
     title: 'Technical Foundation',
-    icon: 'TF',
+    icon: Code2,
     text: 'Computer Science background with exposure to web development, mobile applications, databases, Firebase, IoT, and system-based projects.',
   },
   {
     title: 'Communication Confidence',
-    icon: 'CC',
+    icon: Mic,
     text: 'Experience as an emcee, promoter, and student leader has helped me communicate clearly in different environments.',
   },
   {
     title: 'Adaptability',
-    icon: 'AD',
+    icon: MonitorSmartphone,
     text: 'Comfortable learning new tools, adjusting to responsibilities, and supporting both technical and non-technical tasks.',
   },
   {
     title: 'Documentation & Organisation',
-    icon: 'DO',
+    icon: FileText,
     text: 'Understands the value of proper documentation, reporting, task tracking, and organised professional workflows.',
   },
   {
     title: 'Willingness to Learn',
-    icon: 'WL',
+    icon: GraduationCap,
     text: 'Eager to receive feedback, improve skills, and contribute positively as a fresh graduate entering the workplace.',
   },
 ];
@@ -295,6 +297,9 @@ const achievementGroups = [
       {
         title: 'Android Certified Associate Developer (ACAD)',
         description: 'Demonstrated foundational knowledge in Android development, mobile application concepts, and practical software development skills.',
+        proofLabel: 'View Certificate',
+        proofHref: '/certificates/acad-certificate-preview.pdf',
+        proofAria: 'View Android Certified Associate Developer certificate',
       },
     ],
   },
@@ -304,10 +309,16 @@ const achievementGroups = [
       {
         title: 'Diamond Medal - Mentorship Kinesis Zone 2024: 1+1 International Innovation Competition',
         description: 'Recognised for innovation, creativity, problem-solving, and project presentation in an international innovation competition.',
+        proofLabel: 'View Certificate',
+        proofHref: '/certificates/mentorship-kinesis-certificate-preview.pdf',
+        proofAria: 'View Mentorship Kinesis certificate',
       },
       {
         title: '1st Place - Online Video CV Competition',
         description: 'Recognised for creativity, presentation skills, and the ability to communicate personal strengths effectively.',
+        proofLabel: 'Watch Video',
+        proofHref: 'https://youtu.be/KCVhWGqF7Qc?si=8OmoQV2PLWcW8zzS',
+        proofAria: 'Watch Online Video CV Competition video',
       },
       {
         title: 'MUET Band 4',
@@ -416,6 +427,7 @@ function ProjectCard({ project, secondary = false }) {
 
 function App() {
   const navRef = useRef(null);
+  const themeSwitchTimeoutRef = useRef(null);
   const [activeFilter, setActiveFilter] = useState('All');
   const [scrollProgress, setScrollProgress] = useState(0);
   const [hasScrolled, setHasScrolled] = useState(false);
@@ -453,6 +465,26 @@ function App() {
     document.documentElement.dataset.theme = theme;
     localStorage.setItem('theme', theme);
   }, [theme]);
+
+  useEffect(() => () => {
+    if (themeSwitchTimeoutRef.current) {
+      window.clearTimeout(themeSwitchTimeoutRef.current);
+    }
+  }, []);
+
+  const handleThemeToggle = () => {
+    document.documentElement.classList.add('theme-switching');
+
+    if (themeSwitchTimeoutRef.current) {
+      window.clearTimeout(themeSwitchTimeoutRef.current);
+    }
+
+    themeSwitchTimeoutRef.current = window.setTimeout(() => {
+      document.documentElement.classList.remove('theme-switching');
+    }, 220);
+
+    setTheme((current) => (current === 'dark' ? 'light' : 'dark'));
+  };
 
   useEffect(() => {
     const sections = document.querySelectorAll('.reveal-section');
@@ -547,7 +579,7 @@ function App() {
           className="theme-toggle"
           type="button"
           aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-          onClick={() => setTheme((current) => (current === 'dark' ? 'light' : 'dark'))}
+          onClick={handleThemeToggle}
         >
           {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
         </button>
@@ -662,8 +694,10 @@ function App() {
           <div className="card-grid reasons bento-grid">
             {reasons.map((item, index) => (
               <article className="card reason-card" key={item.title}>
-                <span className="number">{String(index + 1).padStart(2, '0')}</span>
-                <span className="reason-icon" aria-hidden="true">{item.icon}</span>
+                <div className="reason-card-head">
+                  <span className="number">{String(index + 1).padStart(2, '0')}</span>
+                  <IconBubble icon={item.icon} className="reason-icon" />
+                </div>
                 <h3>{item.title}</h3>
                 <p>{item.text}</p>
               </article>
@@ -787,6 +821,13 @@ function App() {
                     <div className="achievement-item" key={item.title}>
                       <strong>{item.title}</strong>
                       <p>{item.description}</p>
+                      {item.proofHref && (
+                        <a className="proof-link" href={item.proofHref} target="_blank" rel="noopener noreferrer" aria-label={item.proofAria}>
+                          <ExternalLink size={14} strokeWidth={2.4} />
+                          {item.proofLabel}
+                        </a>
+                      )}
+                      {item.proofNote && <span className="proof-note">{item.proofNote}</span>}
                     </div>
                   ))}
                 </div>
@@ -795,11 +836,11 @@ function App() {
           </div>
         </section>
 
-        <section className="section-band resume-section">
+        <section id="resume" className="section-band resume-section">
           <div className="container cta-panel resume-panel reveal-section">
             <div>
               <p className="eyebrow">Resume</p>
-              <h2>Choose the resume version that fits the role</h2>
+              <h2>Choose the resume version that best matches the role.</h2>
               <p>I have prepared resume versions tailored for different career directions. Recruiters and hiring managers may download the version that best matches the role being considered.</p>
             </div>
             <div className="resume-options">
@@ -828,33 +869,52 @@ function App() {
             <div className="contact-copy">
               <p className="eyebrow">Contact</p>
               <h2>Let&apos;s connect about entry-level tech opportunities.</h2>
-              <p>I&apos;m open to graduate, Protege, IT support, QA, software-related, and operations support opportunities.</p>
+              <p>I&apos;m currently open to entry-level tech and support roles, including IT Support, QA Testing, Software-related roles, Operations Support, and graduate programmes.</p>
               <div className="availability-highlight">
                 <span>Availability</span>
-                <strong>Available for roles in Kuala Lumpur, Selangor, remote, or hybrid arrangements.</strong>
+                <strong>Open to entry-level roles, graduate programmes, Protege opportunities, and junior positions in Kuala Lumpur, Selangor, remote, or hybrid arrangements.</strong>
               </div>
               <div className="contact-action-row" aria-label="Contact actions">
                 <a className="contact-action-button" href="mailto:sfynkml@gmail.com" aria-label="Email" title="Email">
                   <Mail size={22} strokeWidth={2.3} />
                 </a>
-                <a className="contact-action-button" href="https://wa.me/601133587244" target="_blank" rel="noreferrer" aria-label="WhatsApp" title="WhatsApp">
-                  <MessageCircle size={22} strokeWidth={2.3} />
-                </a>
                 <a className="contact-action-button brand-mark" href="https://www.linkedin.com/in/sufyan-akmal-dron/" target="_blank" rel="noreferrer" aria-label="LinkedIn" title="LinkedIn">
-                  in
+                  <FaLinkedin aria-hidden="true" />
                 </a>
                 <a className="contact-action-button brand-mark" href="https://github.com/akmalyeng" target="_blank" rel="noreferrer" aria-label="GitHub" title="GitHub">
-                  gh
+                  <FaGithub aria-hidden="true" />
                 </a>
               </div>
+              <p className="contact-privacy-note">For direct communication, please reach out via email or LinkedIn. WhatsApp contact is available upon request.</p>
             </div>
-            <div className="location-card" aria-label="Preferred location">
-              <IconBubble icon={MapPin} className="location-card-icon" />
-              <div>
-                <span>Preferred Location</span>
-                <h3>Kuala Lumpur & Selangor</h3>
-                <p>Remote / Hybrid Available</p>
+            <div className="work-preference-card" aria-label="Work preference">
+              <div className="work-preference-header">
+                <h3>Work Preference</h3>
               </div>
+              <div className="preference-list">
+                <div className="preference-row">
+                  <IconBubble icon={MapPin} className="preference-icon" />
+                  <div>
+                    <span>Preferred Location</span>
+                    <strong>Kuala Lumpur & Selangor</strong>
+                  </div>
+                </div>
+                <div className="preference-row">
+                  <IconBubble icon={MonitorSmartphone} className="preference-icon" />
+                  <div>
+                    <span>Work Arrangement</span>
+                    <strong>On-site / Hybrid / Remote</strong>
+                  </div>
+                </div>
+                <div className="preference-row">
+                  <IconBubble icon={BriefcaseBusiness} className="preference-icon" />
+                  <div>
+                    <span>Contact Preference</span>
+                    <strong>Email or LinkedIn first</strong>
+                  </div>
+                </div>
+              </div>
+              <p>WhatsApp available upon request.</p>
             </div>
           </div>
         </section>
