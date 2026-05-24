@@ -10,7 +10,6 @@ import {
   Code2,
   Cpu,
   Database,
-  Download,
   ExternalLink,
   FileText,
   GraduationCap,
@@ -600,7 +599,7 @@ function App() {
               </div>
               <p className="hero-subtitle">A Computer Science graduate blending technical skills, communication confidence, documentation, and real project exposure.</p>
               <div className="button-row">
-                <a className="button primary" href="/resume/technical-resume-sufyan-akmal.pdf" target="_blank" rel="noreferrer" aria-label="View Sufyan Akmal technical resume">View Resume</a>
+                <a className="button primary" href="/resume/technical-resume-sufyan-akmal-dron-2026.pdf" target="_blank" rel="noopener noreferrer" aria-label="View Sufyan Akmal technical resume">View Resume</a>
                 <a className="button secondary" href="#projects">View Projects</a>
               </div>
             </div>
@@ -841,23 +840,21 @@ function App() {
             <div>
               <p className="eyebrow">Resume</p>
               <h2>Choose the resume version that best matches the role.</h2>
-              <p>I have prepared resume versions tailored for different career directions. Recruiters and hiring managers may download the version that best matches the role being considered.</p>
+              <p>I have prepared resume versions tailored for different career directions. Recruiters and hiring managers may view the version that best matches the role being considered.</p>
             </div>
             <div className="resume-options">
               <div className="resume-option">
                 <strong><FileText size={18} strokeWidth={2.4} />Technical Resume</strong>
                 <span>Best for IT Support, Technical Support, Software, Web, Mobile, and QA roles.</span>
                 <div className="resume-actions">
-                  <a className="button secondary" href="/resume/technical-resume-sufyan-akmal.pdf" target="_blank" rel="noreferrer" aria-label="View Sufyan Akmal technical resume PDF"><ExternalLink size={16} />View Resume</a>
-                  <a className="button primary" href="/resume/technical-resume-sufyan-akmal.pdf" download aria-label="Download Sufyan Akmal technical resume PDF"><Download size={16} />Download</a>
+                  <a className="button primary" href="/resume/technical-resume-sufyan-akmal-dron-2026.pdf" target="_blank" rel="noopener noreferrer" aria-label="View Sufyan Akmal technical resume PDF"><ExternalLink size={16} />View Resume</a>
                 </div>
               </div>
               <div className="resume-option">
                 <strong><FileText size={18} strokeWidth={2.4} />General Resume</strong>
                 <span>Best for operations support, administrative support, graduate, and Protege roles.</span>
                 <div className="resume-actions">
-                  <a className="button secondary" href="/resume/general-resume-sufyan-akmal.pdf" target="_blank" rel="noreferrer" aria-label="View Sufyan Akmal general resume PDF"><ExternalLink size={16} />View Resume</a>
-                  <a className="button outline" href="/resume/general-resume-sufyan-akmal.pdf" download aria-label="Download Sufyan Akmal general resume PDF"><Download size={16} />Download</a>
+                  <a className="button primary" href="/resume/general-resume-sufyan-akmal-dron-2026.pdf" target="_blank" rel="noopener noreferrer" aria-label="View Sufyan Akmal general resume PDF"><ExternalLink size={16} />View Resume</a>
                 </div>
               </div>
             </div>
