@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { FaGithub, FaLinkedin } from 'react-icons/fa';
 import {
@@ -426,26 +426,44 @@ function ProjectCard({ project, secondary = false }) {
 
 function App() {
   const navRef = useRef(null);
+  const navLinkRefs = useRef({});
+  const sectionRefs = useRef({});
+  const scrollRafRef = useRef(null);
+  const scrollSpyLockUntilRef = useRef(0);
   const themeSwitchTimeoutRef = useRef(null);
+  const navIndicatorTimeoutRef = useRef(null);
+  const navClickTimeoutRef = useRef(null);
+  const navIndicatorJumpIdRef = useRef(0);
+  const previousActiveSectionRef = useRef(navItems[0][1]);
   const [activeFilter, setActiveFilter] = useState('All');
   const [scrollProgress, setScrollProgress] = useState(0);
   const [hasScrolled, setHasScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState(navItems[0][1]);
-  const [navIndicator, setNavIndicator] = useState({ left: 0, width: 0, ready: false });
+  const [navIndicator, setNavIndicator] = useState({ left: 0, width: 0, ready: false, jumping: false });
   const [theme, setTheme] = useState(() => (localStorage.getItem('theme') === 'dark' ? 'dark' : 'light'));
 
   useEffect(() => {
-    const handleScroll = () => {
+    sectionRefs.current = navItems.reduce((sections, [, id]) => {
+      sections[id] = document.getElementById(id);
+      return sections;
+    }, {});
+
+    const updateScrollState = () => {
+      scrollRafRef.current = null;
       const scrollTop = window.scrollY;
       const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
       setScrollProgress(scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0);
       setHasScrolled(scrollTop > 80);
 
+      if (Date.now() < scrollSpyLockUntilRef.current) {
+        return;
+      }
+
       const scrollPosition = scrollTop + 160;
       let currentSection = navItems[0][1];
 
       navItems.forEach(([, id]) => {
-        const section = document.getElementById(id);
+        const section = sectionRefs.current[id];
 
         if (section && section.offsetTop <= scrollPosition) {
           currentSection = id;
@@ -455,9 +473,21 @@ function App() {
       setActiveSection(currentSection);
     };
 
-    handleScroll();
+    const handleScroll = () => {
+      if (scrollRafRef.current) return;
+      scrollRafRef.current = window.requestAnimationFrame(updateScrollState);
+    };
+
+    updateScrollState();
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+
+      if (scrollRafRef.current) {
+        window.cancelAnimationFrame(scrollRafRef.current);
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -468,6 +498,14 @@ function App() {
   useEffect(() => () => {
     if (themeSwitchTimeoutRef.current) {
       window.clearTimeout(themeSwitchTimeoutRef.current);
+    }
+
+    if (navIndicatorTimeoutRef.current) {
+      window.clearTimeout(navIndicatorTimeoutRef.current);
+    }
+
+    if (navClickTimeoutRef.current) {
+      window.clearTimeout(navClickTimeoutRef.current);
     }
   }, []);
 
@@ -503,18 +541,85 @@ function App() {
     return () => observer.disconnect();
   }, []);
 
-  useEffect(() => {
+  const handleNavClick = (id) => {
+    const previousIndex = navItems.findIndex(([, itemId]) => itemId === activeSection);
+    const nextIndex = navItems.findIndex(([, itemId]) => itemId === id);
+    const indexDifference = previousIndex >= 0 && nextIndex >= 0 ? Math.abs(nextIndex - previousIndex) : 0;
+    const isFarJump = indexDifference > 1;
+
+    scrollSpyLockUntilRef.current = Date.now() + (isFarJump ? 1100 : 850);
+
+    if (navClickTimeoutRef.current) {
+      window.clearTimeout(navClickTimeoutRef.current);
+    }
+
+    if (isFarJump) {
+      navClickTimeoutRef.current = window.setTimeout(() => {
+        setActiveSection(id);
+      }, 420);
+      return;
+    }
+
+    setActiveSection(id);
+  };
+
+  useLayoutEffect(() => {
     const updateIndicator = () => {
       const nav = navRef.current;
-      const activeLink = nav?.querySelector(`[data-section="${activeSection}"]`);
+      const activeLink = navLinkRefs.current[activeSection];
 
       if (!nav || !activeLink) return;
 
-      setNavIndicator({
-        left: activeLink.offsetLeft,
-        width: activeLink.offsetWidth,
-        ready: true,
-      });
+      const previousIndex = navItems.findIndex(([, id]) => id === previousActiveSectionRef.current);
+      const currentIndex = navItems.findIndex(([, id]) => id === activeSection);
+      const isFarJump = previousIndex >= 0 && currentIndex >= 0 && Math.abs(currentIndex - previousIndex) > 1 && navIndicator.ready;
+
+      if (navIndicatorTimeoutRef.current) {
+        window.clearTimeout(navIndicatorTimeoutRef.current);
+      }
+
+      if (isFarJump) {
+        const jumpId = navIndicatorJumpIdRef.current + 1;
+        navIndicatorJumpIdRef.current = jumpId;
+        setNavIndicator((current) => ({ ...current, ready: false, jumping: true }));
+
+        navIndicatorTimeoutRef.current = window.setTimeout(() => {
+          if (navIndicatorJumpIdRef.current !== jumpId) return;
+
+          setNavIndicator({
+            left: activeLink.offsetLeft,
+            width: activeLink.offsetWidth,
+            ready: false,
+            jumping: true,
+          });
+
+          window.requestAnimationFrame(() => {
+            window.requestAnimationFrame(() => {
+              if (navIndicatorJumpIdRef.current !== jumpId) return;
+
+              setNavIndicator({
+                left: activeLink.offsetLeft,
+                width: activeLink.offsetWidth,
+                ready: true,
+                jumping: false,
+              });
+            });
+          });
+        }, 160);
+      } else {
+        navIndicatorJumpIdRef.current += 1;
+
+        window.requestAnimationFrame(() => {
+          setNavIndicator({
+            left: activeLink.offsetLeft,
+            width: activeLink.offsetWidth,
+            ready: true,
+            jumping: false,
+          });
+        });
+      }
+
+      previousActiveSectionRef.current = activeSection;
 
       if (nav.scrollWidth > nav.clientWidth) {
         nav.scrollTo({
@@ -554,9 +659,9 @@ function App() {
         </a>
         <nav className="nav-pill" aria-label="Main navigation" ref={navRef}>
           <span
-            className={navIndicator.ready ? 'nav-indicator ready' : 'nav-indicator'}
+            className={`nav-indicator${navIndicator.ready ? ' ready' : ''}${navIndicator.jumping ? ' indicator-jump' : ''}`}
             style={{
-              '--nav-indicator-left': `${navIndicator.left}px`,
+              '--indicator-x': `${navIndicator.left}px`,
               '--nav-indicator-width': `${navIndicator.width}px`,
             }}
             aria-hidden="true"
@@ -568,7 +673,14 @@ function App() {
               data-section={id}
               key={id}
               href={`#${id}`}
-              onClick={() => setActiveSection(id)}
+              onClick={() => handleNavClick(id)}
+              ref={(element) => {
+                if (element) {
+                  navLinkRefs.current[id] = element;
+                } else {
+                  delete navLinkRefs.current[id];
+                }
+              }}
             >
               {label}
             </a>
@@ -590,17 +702,16 @@ function App() {
             <div className="hero-copy reveal">
               <p className="eyebrow">Fresh Computer Science Graduate</p>
               <h1>Hello, I&apos;m <span className="gradient-text">Sufyan Akmal.</span></h1>
-              <h2>I <span className="gradient-text">build, support, and improve</span> digital solutions.</h2>
+              <h2>An entry-level tech talent ready to learn, contribute, and grow.</h2>
               <div className="role-rotator" aria-label="Career interests">
                 <span>IT Support</span>
                 <span>Software Development</span>
                 <span>QA Testing</span>
                 <span>Operations Support</span>
               </div>
-              <p className="hero-subtitle">A Computer Science graduate blending technical skills, communication confidence, documentation, and real project exposure.</p>
+              <p className="hero-subtitle">With a background in Mobile Computing, I bring project experience, documentation skills, and strong communication to IT support, QA, software-related, and operations roles.</p>
               <div className="button-row">
                 <a className="button primary" href="/resume/technical-resume-sufyan-akmal-dron-2026.pdf" target="_blank" rel="noopener noreferrer" aria-label="View Sufyan Akmal technical resume">View Resume</a>
-                <a className="button secondary" href="#projects">View Projects</a>
               </div>
             </div>
             <aside className="profile-panel reveal" aria-label="Portfolio summary">
